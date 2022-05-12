@@ -3,11 +3,11 @@ package com.vladarsenjtev;
 import java.io.File;
 
 public class FileLoggerConfiguration {
-    File logger;
-    LoggingLevel loggingLevel;
-    int sizeMax;
-    String format;
-    String path;
+    private File logger;
+    private LoggingLevel loggingLevel;
+    private int sizeMax;
+    private String format;
+    private String path;
 
     public FileLoggerConfiguration(File logger, LoggingLevel loggingLevel, int sizeMax, String format) {
         this.logger = logger;

@@ -5,14 +5,13 @@ import java.util.Date;
 
 
 public class FileLogger {
-    FileLoggerConfigurationLoader fileLoggerConfigurationLoader = new FileLoggerConfigurationLoader();
-    Date date = new Date();
 
+    public void debug(String conf, LoggingLevel loggingLevel) throws Exception {
+        Date date = new Date();
+        FileLoggerConfigurationLoader fileLoggerConfigurationLoader = new FileLoggerConfigurationLoader();
+        FileLoggerConfiguration file = fileLoggerConfigurationLoader.load(loggingLevel, 100, ".txt");
 
-    public void debug(String conf, LoggingLevel loggingLevel, FileLoggerConfiguration file) throws Exception {
-
-
-        if (file.getFileSizeKiloBytes() <= file.sizeMax) {
+        if (file.getFileSizeKiloBytes() <= file.getSizeMax()) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file.getLogger(), true))) {
                 writer.append(String.valueOf(date)).append(" ").append(String.valueOf(loggingLevel)).append(" ").append(conf);
                 writer.newLine();
@@ -24,25 +23,31 @@ public class FileLogger {
                 }
             }
         } else {
-            throw new FileMaxSizeReachedException("Превышен размер файла");
+            debug(conf, loggingLevel);
         }
     }
 
 
-    public void info(String conf, LoggingLevel loggingLevel, FileLoggerConfiguration file) throws Exception {
-        if (file.getFileSizeKiloBytes() <= file.sizeMax) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file.getLogger(), true))) {
-                writer.append(String.valueOf(date)).append(" ").append(String.valueOf(loggingLevel)).append(" ").append(conf);
-                writer.newLine();
-            }
-            try (BufferedReader reader = new BufferedReader(new FileReader(file.getLogger()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
+    public void info(String conf, LoggingLevel loggingLevel) throws Exception {
+        Date date = new Date();
+        if (loggingLevel == LoggingLevel.INFO) {
+            FileLoggerConfigurationLoader fileLoggerConfigurationLoader = new FileLoggerConfigurationLoader();
+            FileLoggerConfiguration file = fileLoggerConfigurationLoader.load(loggingLevel, 100, ".txt");
+
+            if (file.getFileSizeKiloBytes() <= file.getSizeMax()) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(file.getLogger(), true))) {
+                    writer.append(String.valueOf(date)).append(" ").append(String.valueOf(loggingLevel)).append(" ").append(conf);
+                    writer.newLine();
                 }
+                try (BufferedReader reader = new BufferedReader(new FileReader(file.getLogger()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+            } else {
+                info(conf, loggingLevel);
             }
-        } else {
-            throw new FileMaxSizeReachedException("Превышен размер файла");
         }
     }
 }
